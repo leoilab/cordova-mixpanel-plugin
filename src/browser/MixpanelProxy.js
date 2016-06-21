@@ -123,6 +123,29 @@ function on_mixpanel_loaded() {
 
   };
 
+
+  // TIME EVENT
+  mixpanel.original_time_event = mixpanel.time_event;
+  mixpanel.time_event = function(eventName, eventProperties, onSuccess, onFail) {
+
+    if (!eventName || typeof eventName != 'string') {
+      if (onFail && typeof onFail === 'function')
+      return onFail(errors.invalid('event', eventName));
+    }
+
+    mixpanel.original_time_event(eventName, function(r) {
+      if (!r) {
+        if (onFail && typeof onFail === 'function')
+        return onFail(errors.invalid('track', eventName));
+      } else {
+        if (onSuccess && typeof onSuccess === 'function')
+        return onSuccess();
+      }
+    });
+
+  };
+
+
   mixpanel.people.original_identify = mixpanel.people.identify;
   mixpanel.people.identify = function(distinctId, onSuccess, onFail) {
     return mixpanel.original_identify(distinctId, onSuccess, onFail);
